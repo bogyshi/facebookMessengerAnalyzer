@@ -52,7 +52,6 @@ class User:
                 if(word == ""):
                     pass
                 else:
-
                     self.numWords+=1
                     word = word.lower()
                     if(word not in self.dict and word not in stpwrds and word not in self.dumbWords):
