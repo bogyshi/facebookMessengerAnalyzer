@@ -3,9 +3,10 @@ import nltk
 from collections import Counter
 import csv
 import re
-#nltk.download('stopwords')
+import sys
+nltk.download('stopwords')
 from nltk.corpus import stopwords
-
+import pdb
 stpwrds = set(stopwords.words('english'))
 
 class User:
@@ -14,6 +15,7 @@ class User:
         self.name = name
         self.messages = []
         self.dict= {}
+        self.cleanMessages=[]
         self.dictMessages = {}
         self.stopWordCounts = {}
         self.dumbWords={
@@ -34,11 +36,11 @@ class User:
 
     def createDicts(self):
         counter = 0
-        for m in self.messages:
+        for m in self.cleanMessages:
             self.numMessages+=1
             counter +=1
-
-            temp=re.sub(r'[!?\']','',m.strip().lower())
+            #pdb.set_trace()
+            temp=m
             #temp=re.sub(r'[.]',' ',temp)
             if(len(temp.split(' '))>=2):
                 if(len(temp.split(' '))>self.longestMessagelen):
@@ -48,12 +50,14 @@ class User:
                     self.dictMessages[temp]=1
                 else:
                     self.dictMessages[temp]+=1
-            for word in (m.strip().split(' ')):
-                if(word == ""):
+            for word in (temp.strip().split(' ')):
+                if(word == ''):
                     pass
                 else:
                     self.numWords+=1
                     word = word.lower()
+                    if(',' in word):
+                        print(temp)
                     if(word not in self.dict and word not in stpwrds and word not in self.dumbWords):
                         self.dict[word] = 1
                     elif(word not in stpwrds and word not in self.dumbWords):
@@ -66,7 +70,11 @@ class User:
 
     def setDistinctWords(self,totDict,netWords,netMessages):
         self.distinctCounter = Counter()
-        for k , v in self.dict.iteritems():
+        if (sys.version_info[0] < 3):
+            toiter = self.dict.iteritems()
+        else:
+            toiter = self.dict.items()
+        for k , v in toiter:
             self.distinctCounter[k] = ( float(v*v)/(totDict[k]) ) * (float(self.numMessages)/netMessages)
 
     def dumpStats(self):
