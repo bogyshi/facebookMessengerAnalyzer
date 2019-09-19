@@ -98,6 +98,10 @@ class Chat:
             if(self.netDictionary):
                 self.users[u].setDistinctWords(self.netDictionary,self.netWords,self.netMessages)
 
+    def updateNames(self,convNames):
+        for u in self.userNames:
+            self.users[u].name = convNames[u]
+
     def printStats(self):
         for u in self.userNames:
             self.users[u].printTopX(10)

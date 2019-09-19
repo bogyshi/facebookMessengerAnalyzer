@@ -156,20 +156,43 @@ def getNumMessages(data):
 
 def startGroupMe(jsondata):
     userids=[]
+    commonName = {}
+    maxName={}
     for n in jsondata:
         tusd = n["user_id"]
+        tusn = n["name"]
         if tusd not in userids:
             userids.append(tusd)
-    return userids
+            commonName[tusd]={}
+            maxName[tusd]=""
+
+        if(tusn not in commonName[tusd].keys()):
+            commonName[tusd][tusn]=1
+        else:
+            commonName[tusd][tusn]+=1
+
+    if (sys.version_info[0] < 3):
+        toiter = commonName.iteritems()
+    else:
+        toiter = commonName.items()
+    for k,v in toiter:
+        mni1 = (list(v.values()))
+        mni = np.argmax(mni1)
+        mn = list(v.keys())[mni]
+        maxName[k]=mn
+
+    return userids,maxName
 def main():
     chowderPath ='/home/avanroi1/messages/inbox/chowder_g03zkk7sug'
     weirdPathName = '/home/avanroi1/messages/inbox/mualphanugammaomicron_baafcd34pg'
     groupmePathName = '/home/avanroi1/groupmeData/theboys'
+    groupmePathName = '/home/avanroi1/groupmeData/allupcs'
+
 
     data = getJson(chowderPath)
     data = getJson(weirdPathName)
     gmdata = getJson(groupmePathName)
-    gcids = startGroupMe(gmdata)
+    gcids,gcnames = startGroupMe(gmdata)
     args = parseArgs()
     numMessages = getNumMessages(data)
     username = args.username
@@ -179,10 +202,11 @@ def main():
     #nameVec.append(username)
     if(debug is True):
         print(nameVec)
-    c = Chat(nameVec,data)
+    #c = Chat(nameVec,data)
     c2= Chat(gcids,gmdata,isGM=True)
     c2.popSelfDict()
     c2.updateUserStats()
+    c2.updateNames(gcnames)
     c2.printStats()
     if(doModel):
         bestmodel,data,targs = doHTBasic(c)
